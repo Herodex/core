@@ -191,7 +191,7 @@ contract Market is Ownable {
             } else if (_duration < 1 days) {
                 lockedSum = CalculatePayment(_price, _duration);
             } else {
-                lockedSum = CalculatePayment(_price , 1 days);
+                lockedSum = CalculatePayment(_price, 1 days);
             }
             // this line contains err.
             require(token.transferFrom(msg.sender, this, lockedSum));
@@ -269,10 +269,14 @@ contract Market is Ownable {
         require((ask.counterparty == 0x0 || ask.counterparty == GetMaster(bid.author)) && (bid.counterparty == 0x0 || bid.counterparty == GetMaster(ask.author)));
         require(ask.orderType == OrderType.ORDER_ASK);
         require(bid.orderType == OrderType.ORDER_BID);
-        require(bl.Check(bid.blacklist, GetMaster(ask.author)) == false && bl.Check(ask.blacklist, bid.author) == false);
-        require(bl.Check(bid.author, GetMaster(ask.author)) == false && bl.Check(GetMaster(ask.author), bid.author) == false);
-        require(bl.Check(bid.author, ask.author) == false && bl.Check(ask.author, bid.author) == false);
-        require(bl.Check(bid.blacklist, ask.author) == false);
+        require(
+            bl.Check(bid.blacklist, GetMaster(ask.author)) == false
+            && bl.Check(bid.blacklist, ask.author) == false
+            && bl.Check(bid.author, GetMaster(ask.author)) == false
+            && bl.Check(bid.author, ask.author) == false
+            && bl.Check(ask.blacklist, bid.author) == false
+            && bl.Check(GetMaster(ask.author), bid.author) == false
+            && bl.Check(ask.author, bid.author) == false);
         require(ask.price <= bid.price);
         require(ask.duration >= bid.duration);
         // profile level check
