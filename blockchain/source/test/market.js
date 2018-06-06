@@ -510,7 +510,7 @@ contract('Market', async function (accounts) {
         assert.equal(stateBefore.toNumber(10) + 1, stateAfter.toNumber(10));
 
         await oracle.setCurrentPrice(1e18);
-        await market.CloseDeal(dealId, false, { from: specialConsumer });
+        await market.CloseDeal(dealId, 0, { from: specialConsumer });
         let stateAfterClose = await market.GetDealParams(dealId);
         assert.equal(stateAfterClose[3].toNumber(10), 2);
         assert.equal(stateAfterClose[4].toNumber(10), 0); // balance
@@ -558,7 +558,7 @@ contract('Market', async function (accounts) {
 
         await oracle.setCurrentPrice(1e18);
 
-        await market.CloseDeal(dealId, false, { from: consumer });
+        await market.CloseDeal(dealId, 0, { from: consumer });
         let stateAfterClose = await market.GetDealParams(dealId);
         let infoAfterClose = await market.GetDealInfo(dealId);
         let dealTime = stateAfterClose[2].toNumber(10) - infoAfterClose[6].toNumber(10);
@@ -608,7 +608,7 @@ contract('Market', async function (accounts) {
 
         await oracle.setCurrentPrice(1e18);
 
-        await market.CloseDeal(dealId, true, { from: consumer });
+        await market.CloseDeal(dealId, 2, { from: consumer });
         let blacklisted = await blacklist.Check(consumer, blacklistedSupplier);
         assert.ok(blacklisted);
     });
@@ -681,19 +681,19 @@ contract('Market', async function (accounts) {
     });
 
     it('test CloseDeal: spot w/o blacklist', async function () {
-        await market.CloseDeal(2, false, { from: supplier });
+        await market.CloseDeal(2, 0, { from: supplier });
         let stateAfter = await market.GetDealParams(2);
         assert.equal(stateAfter[3].toNumber(10), 2);
     });
 
     it('test CloseDeal: closing after ending', async function () {
-        await market.CloseDeal(3, false, { from: supplier });
+        await market.CloseDeal(3, 0, { from: supplier });
         let stateAfter = await market.GetDealParams(3);
         assert.equal(stateAfter[3].toNumber(10), 2);
     });
 
     it('test CloseDeal: forward w blacklist', async function () {
-        await market.CloseDeal(4, true, { from: consumer });
+        await market.CloseDeal(4, 2, { from: consumer });
         let stateAfter = await market.GetDealParams(4);
         assert.equal(stateAfter[3].toNumber(10), 2);
     });
@@ -832,7 +832,7 @@ contract('Market', async function (accounts) {
         await market.GetDealsAmount();
         await market.OpenDeal(ordersAmount - 1, ordersAmount, { from: consumer });
         let stateAfter = await market.GetDealsAmount();
-        await market.CloseDeal(stateAfter.toNumber(10), false, { from: consumer });
+        await market.CloseDeal(stateAfter.toNumber(10), 0, { from: consumer });
     });
 
     it('test OpenDeal forward: close it after ending', async function () {
@@ -865,7 +865,7 @@ contract('Market', async function (accounts) {
         await market.OpenDeal(ordersAmount - 1, ordersAmount, { from: consumer });
         let stateAfter = await market.GetDealsAmount();
         await increaseTime(2);
-        await market.CloseDeal(stateAfter.toNumber(10), false, { from: consumer });
+        await market.CloseDeal(stateAfter.toNumber(10), 0, { from: consumer });
     });
 
     it('test CreateOrder forward bid duration 2 hours', async function () {
