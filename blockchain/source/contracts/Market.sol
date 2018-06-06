@@ -46,6 +46,13 @@ contract Market is Ownable {
         REQUEST_ACCEPTED
     }
 
+    enum BlacklistPerson {
+        UNKNOWN,
+        WORKER,
+        MASTER
+    }
+
+
     struct Deal {
         uint64[] benchmarks;
         address supplierID;
@@ -306,7 +313,7 @@ contract Market is Ownable {
         emit DealOpened(dealAmount);
     }
 
-    function CloseDeal(uint dealID, bool blacklisted) public returns (bool){
+    function CloseDeal(uint dealID, BlacklistPerson blacklisted) public returns (bool){
         require((deals[dealID].status == DealStatus.STATUS_ACCEPTED));
         require(msg.sender == deals[dealID].supplierID || msg.sender == deals[dealID].consumerID || msg.sender == deals[dealID].masterID);
 
@@ -681,9 +688,13 @@ contract Market is Ownable {
         return rate.mul(_price).mul(_period).div(1e18);
     }
 
-    function AddToBlacklist(uint dealID, bool blacklisted) internal {
-        if (msg.sender == deals[dealID].consumerID && blacklisted == true) {
-            bl.Add(deals[dealID].consumerID, deals[dealID].masterID);
+    function AddToBlacklist(uint dealID, BlacklistPerson role) internal {
+        if (msg.sender == deals[dealID].consumerID && uint64(role) > 0) {
+            if (role == BlacklistPerson.WORKER){
+                bl.Add(deals[dealID].consumerID, deals[dealID].supplierID);
+            } else if (role == BlacklistPerson.MASTER) {
+                bl.Add(deals[dealID].consumerID, deals[dealID].masterID);
+            }
         }
     }
 
