@@ -263,7 +263,9 @@ contract Market is Ownable {
         require(ask.orderType == OrderType.ORDER_ASK);
         require(bid.orderType == OrderType.ORDER_BID);
         require(bl.Check(bid.blacklist, GetMaster(ask.author)) == false && bl.Check(ask.blacklist, bid.author) == false);
-        require(bl.Check(bid.author, GetMaster(ask.author)) == false && bl.Check(ask.author, bid.author) == false);
+        require(bl.Check(bid.author, GetMaster(ask.author)) == false && bl.Check(GetMaster(ask.author), bid.author) == false);
+        require(bl.Check(bid.author, ask.author) == false && bl.Check(ask.author, bid.author) == false);
+        require(bl.Check(bid.blacklist, ask.author) == false);
         require(ask.price <= bid.price);
         require(ask.duration >= bid.duration);
         // profile level check
